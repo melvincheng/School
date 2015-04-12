@@ -17,7 +17,12 @@ public class Client{
 	}
 
 	public Client(String hostname, int socket, String name) throws Exception{
-		commsocket = new Socket(hostname,socket);
+		try{
+			commsocket = new Socket(hostname,socket);
+		}catch(Exception e){
+			System.err.println("Unable to connect to host");
+			System.exit(-1);
+		}
 		input = commsocket.getInputStream();
 		output = commsocket.getOutputStream();
 		dataIn = new DataInputStream(input);
@@ -41,45 +46,58 @@ public class Client{
 			this.dataOut = dataOut;
 			this.dataIn = dataIn;
 			this.login = login;
-			System.out.println("Ready");
 		}
 		public void run(){
 			Scanner scanner = new Scanner(System.in);
 			Pattern pattern = Pattern.compile(match);
 			Matcher matcher;
-			String line, in;
+			String line, in, serverMessage;
+			int numMess;
 			try{
-				dataOut.writeUTF("login " + login);
+				dataOut.writeUTF(login);
+				System.out.println(dataIn.readUTF());
+				if(dataIn.readBoolean()==false){
+					System.exit(0);
+				}
 			}catch(Exception e){
 				System.err.println("Login error");
+				System.exit(-1);
 			}
+			System.out.println("Ready");
 			while(true){
 				try{
-
 					line = scanner.nextLine();
 					matcher = pattern.matcher(line);
 					if(matcher.find()==true){
 						if(matcher.group("command").compareToIgnoreCase("fetch")==0){
-							dataOut.writeUTF("fetch "+login);
-							in = dataIn.readUTF();
-							if(in == ""){
-								System.out.println("No new messages");
+							dataOut.writeUTF("fetch");
+							numMess = dataIn.readInt();
+							if(numMess == 0){
+								System.out.println(dataIn.readUTF());
 							}
-							else{
-								System.out.println(in);
+							for(int x=0;x<numMess;x++){
+								System.out.println(dataIn.readUTF());
 							}
 						}else if(matcher.group("command").compareToIgnoreCase("login")==0){
 							dataOut.writeUTF(line);
+							System.out.println(dataIn.readUTF());
 						}
 						else if(matcher.group("command").compareToIgnoreCase("send")==0){
 							dataOut.writeUTF(line);
+							System.out.println(dataIn.readUTF());
+						}else{
+							System.out.println("Invalid command");
 						}
 					}else{
 						System.out.println("Invalid command");
 					}
-				}catch(Exception e){
+				}catch(NoSuchElementException e){
+					System.out.println("Exiting program");
 					break;
-				} 
+				}catch(IOException e){
+					System.out.println("An error has occur with the connection to the server\nExiting program");
+					break;
+				}
 			}
 		}
 	}
