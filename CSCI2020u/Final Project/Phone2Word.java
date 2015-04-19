@@ -13,20 +13,17 @@ class Phone2Word {
 		this.iterator = dictionary.iterator();
 		this.w2p = w2p;
 	}
-	public void find(String number){
+
+	public ArrayList<String> find(String number){
 		String word, changed2Num;
 		ArrayList<String> contain = new ArrayList<String>();
 		while(iterator.hasNext()){
 			word = iterator.next();
-			w2p.change(word);
-			changed2Num = w2p.result();
+			changed2Num = w2p.change(word);
 			if(number.compareTo(changed2Num)==0){
 				contain.add(word);
 			}
 		}
-		result = contain;
-	}
-	public ArrayList<String> result(){
-		return result;
+		return contain;
 	}
 }

@@ -18,36 +18,51 @@ public class Server{
 		System.out.println("Server is running");
 		Dictionary dictionary = new Dictionary("dictionary.txt");
 		Word2PhoneMapper mapper = new Word2PhoneMapper();
+		int userNum = 1;
 		while(true){
 			Socket socket = serverSocket.accept();
 			InputStream input = socket.getInputStream();
 			OutputStream output = socket.getOutputStream();
 			DataInputStream dataIn = new DataInputStream(input);
 			DataOutputStream dataOut = new DataOutputStream(output);
-			Helper helper = new Helper();
-			(new Recieve(dataIn,helper)).start();
-			(new Helper(dictionary,mapper));
-			(new Send(dataOut,helper)).start();
-
-
+			Helper helper = new Helper(dictionary, mapper);
+			(new Recieve(dataIn,dataOut,userNum,helper)).start();
+			(new Send(dataOut,userNum,helper)).start();
+			System.out.println(userNum);
+			userNum++;
 		}
 	}
-
 
 	static class Send extends Thread{
 		DataOutputStream dataOut;
 		int userNum;
-		public Send(DataOutputStream dataOut, int userNum){
+		Helper helper;
+		public Send(DataOutputStream dataOut, int userNum, Helper helper){
 			this.dataOut = dataOut;
 			this.userNum = userNum;
+			this.helper = helper;
 		}
 		public void run(){
 			String output;
 			while(true){
 				try{
-					synchronized(System.out){
-						System.out.println(userNum + "<<" + );
+					if(helper.outputChoice()){
+						dataOut.writeUTF(helper.phoneResult);
+						synchronized(System.out){
+							System.out.println(userNum + " << " + helper.phoneResult);
+						}
+					}else if(!helper.outputChoice()){
+						dataOut.writeInt(helper.wordResult.size());
+						for(String word:helper.wordResult){
+							synchronized(System.out){
+								dataOut.writeUTF(word);
+								System.out.println(userNum + " << " + word);
+							}
+						}
+					}else{
+						System.out.println("Operation failed");
 					}
+					dataOut.writeBoolean(true);
 				}catch(Exception e){
 					break;
 				}
@@ -57,16 +72,26 @@ public class Server{
 
 	static class Recieve extends Thread{
 		DataInputStream dataIn;
+		DataOutputStream dataOut;
 		int userNum;
-		public Recieve(DataInputStream dataIn,int userNum){
+		Helper helper;
+		public Recieve(DataInputStream dataIn, DataOutputStream dataOut, int userNum, Helper helper){
 			this.dataIn = dataIn;
+			this.dataOut = dataOut;
 			this.userNum = userNum;
+			this.helper = helper;
 		}
 		public void run(){
+			String clientInput;
 			while(true){
 				try{
+					clientInput = dataIn.readUTF();
+					dataOut.writeBoolean(false);
 					synchronized(System.out){
-						System.out.println(userNum + ">>" + dataIn.readUTF());
+						System.out.println(userNum + ">>" + clientInput);
+					}
+					synchronized(helper){
+						helper.input(clientInput);
 					}
 				}catch(Exception e){
 					break;

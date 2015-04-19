@@ -6,49 +6,73 @@ import java.util.regex.*;
 public class Client{
 	Socket commSocket;
 	InputStream input;
-	OutputStrema output;
+	OutputStream output;
 	DataInputStream dataIn;
 	DataOutputStream dataOut;
-	String match = "[\\d]*"
-	
-	static public void main(String[] args) throws Exception{
-		Client c = new Client()
-	}
+	Boolean status = false;
+
 
 	public Client(){
+
+	}
+
+	public void clientSetup(String hostname,int socket) throws Exception{
 		try{
-			commsocket = new Socket();
+			commSocket = new Socket(hostname, socket);
 		}catch(Exception e){
+			
 		}
-		input = commsocket.getInputStream();
-		output = commsocket.getOutputStream();
+		input = commSocket.getInputStream();
+		output = commSocket.getOutputStream();
 		dataIn = new DataInputStream(input);
 		dataOut = new DataOutputStream(output);
+		status = true;
 	}
 	public void connect() throws Exception{
-		Thread 
+		Thread send = new Send(dataOut,dataIn);
+		Thread receive = new Receive(dataIn);
+		send.start();
+		receive.start();
+		send.join();
+		receive.join();
 	}
-
+	public Boolean connected(){
+		return status;
+	}
 	static class Send extends Thread{
 		DataOutputStream dataOut;
+		DataInputStream dataIn;
+		String numMatch = "[\\d]*";
+		String wordMatch = "[\\w]*";
 
-		public Send(DataOutputStream dataOut){
+		public Send(DataOutputStream dataOut, DataInputStream dataIn){
 			this.dataOut = dataOut;
+			this.dataIn = dataIn;
 		}
 		public void run(){
 			Scanner scanner = new Scanner(System.in);
-			Pattern pattern = Pattern.compile(match);
-			Matcher matcher;
+			Pattern numPattern = Pattern.compile(numMatch);
+			Pattern wordPattern = Pattern.compile(wordMatch);
+			Matcher numMatcher;
+			Matcher wordMatcher;
 			String line;
+			Boolean server = true;
 			while(true){
 				try{
-					line = scanner.nextLine();
-					matcher = pattern.matcher(line);
-					if(matcher.find()==true){
-						dataOut.writeUTF(line);
-					}
-					else{
-						System.out.println("Invalid number");
+					while(server){
+						line = Gui.toServer;
+						Gui.toServer = null;
+						if(line != null){
+							numMatcher = numPattern.matcher(line);
+							wordMatcher = wordPattern.matcher(line);
+							if(numMatcher.find()||wordMatcher.find()){
+								dataOut.writeUTF(line);
+								server = dataIn.readBoolean();
+							}
+							else{
+								Gui.fromServer = "Invalid number";
+							}
+						}
 					}
 				}catch(Exception e){
 					break;
@@ -65,7 +89,7 @@ public class Client{
 		public void run(){
 			while(true){
 				try{
-					System.out.println(dataIn.readUTF());
+					Gui.fromServer = dataIn.readUTF();
 				}catch(Exception e){
 					break;
 				}

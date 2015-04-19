@@ -56,7 +56,7 @@ public class Client{
 			try{
 				dataOut.writeUTF(login);
 				System.out.println(dataIn.readUTF());
-				if(dataIn.readBoolean()==false){
+				if(!dataIn.readBoolean()){
 					System.exit(0);
 				}
 			}catch(Exception e){
@@ -68,7 +68,7 @@ public class Client{
 				try{
 					line = scanner.nextLine();
 					matcher = pattern.matcher(line);
-					if(matcher.find()==true){
+					if(matcher.find()){
 						if(matcher.group("command").compareToIgnoreCase("fetch")==0){
 							dataOut.writeUTF("fetch");
 							numMess = dataIn.readInt();
