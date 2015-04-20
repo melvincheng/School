@@ -3,19 +3,26 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class Client{
+public class NonGUI{
 	Socket commSocket;
 	InputStream input;
 	OutputStream output;
 	DataInputStream dataIn;
 	DataOutputStream dataOut;
 	Boolean status = false;
-	static String fromServer;
-	static String toServer;
 
-	public Client(String fromServer, String toServer){
-		this.fromServer = fromServer;
-		this.toServer = toServer;
+	static public void main(String[] args){
+		NonGUI c = new NonGUI();
+		try{
+			c.clientSetup(args[0],Integer.parseInt(args[1]));
+			c.connect();
+		}catch(Exception e){
+
+		}
+	}
+
+	public NonGUI(){
+
 	}
 
 	public void clientSetup(String hostname,int socket) throws Exception{
@@ -31,7 +38,7 @@ public class Client{
 		status = true;
 	}
 	public void connect() throws Exception{
-		Thread send = new Send(dataOut);
+		Thread send = new Send(dataOut,dataIn);
 		Thread receive = new Receive(dataIn);
 		send.start();
 		receive.start();
@@ -47,24 +54,27 @@ public class Client{
 		String numMatch = "[\\d]*";
 		String wordMatch = "[a-zA-Z]*";
 
-		public Send(DataOutputStream dataOut){
+		public Send(DataOutputStream dataOut, DataInputStream dataIn){
 			this.dataOut = dataOut;
 			this.dataIn = dataIn;
 		}
 		public void run(){
+			Scanner scanner = new Scanner(System.in);
 			Pattern numPattern = Pattern.compile(numMatch);
 			Pattern wordPattern = Pattern.compile(wordMatch);
 			Matcher numMatcher;
 			Matcher wordMatcher;
+			String line;
+			Boolean server = true;
 			while(true){
 				try{
-					if(toServer==""){
-						numMatcher = numPattern.matcher(toServer);
-						wordMatcher = wordPattern.matcher(toServer);
-						if(numMatcher.find()||wordMatcher.find()){
-							dataOut.writeUTF(toServer);
-						}
+					line = scanner.nextLine();
+					numMatcher = numPattern.matcher(line);
+					wordMatcher = wordPattern.matcher(line);
+					if(numMatcher.find()||wordMatcher.find()){
+						dataOut.writeUTF(line);
 					}
+					
 				}catch(Exception e){
 					break;
 				}
@@ -81,9 +91,11 @@ public class Client{
 			while(true){
 				try{
 					synchronized(System.out){
-						fromServer = dataIn.readUTF();
+						String data = dataIn.readUTF();
+						System.out.println(data);
 					}
 				}catch(Exception e){
+					System.out.println(e);
 					break;
 				}
 			}
