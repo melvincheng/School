@@ -11,7 +11,11 @@ public class Word2Phone{
 		word = word.toLowerCase();
 		char[] letters = word.toCharArray();
 		for(int x=0;x<letters.length;x++){
-			letters[x] = mapper.get(letters[x]);
+			try{
+				letters[x] = mapper.get(letters[x]);
+			}catch(Exception e){
+				return "";
+			}
 		}
 		return (new String(letters));
 	}

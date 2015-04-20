@@ -2,7 +2,6 @@ import java.util.*;
 
 public class Word2PhoneMapper extends HashMap<Character,Character>{
 	public Word2PhoneMapper(){
-		this.put('\'','1');
 		this.put('a','2');
 		this.put('b','2');
 		this.put('c','2');
@@ -29,5 +28,6 @@ public class Word2PhoneMapper extends HashMap<Character,Character>{
 		this.put('x','9');
 		this.put('y','9');
 		this.put('z','9');
+		this.put(' ','0');
 	}
 }
