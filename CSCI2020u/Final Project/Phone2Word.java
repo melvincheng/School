@@ -24,6 +24,7 @@ class Phone2Word {
 				contain.add(word);
 			}
 		}
+		iterator = dictionary.iterator();
 		return contain;
 	}
 }

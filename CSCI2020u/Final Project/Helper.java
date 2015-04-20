@@ -2,8 +2,8 @@ import java.util.*;
 import java.util.regex.*;
 
 public class Helper{
-	String p2wString = ("[\\d]");
-	String w2pString = ("[\\w]");
+	String p2wString = ("[0-9]*");
+	String w2pString = ("[a-zA-Z]");
 	Pattern p2wPattern;
 	Pattern w2pPattern;
 	Matcher p2wMatcher;
@@ -30,11 +30,6 @@ public class Helper{
 		}else if(p2wMatcher.find()){
 			wordResult = p2w.find(line);
 			choice = false;
-		}else{
-			System.out.println("No match found");
 		}
-	}
-	public Boolean outputChoice(){
-		return choice;
 	}
 }

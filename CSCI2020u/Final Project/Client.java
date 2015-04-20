@@ -11,6 +11,15 @@ public class Client{
 	DataOutputStream dataOut;
 	Boolean status = false;
 
+	static public void main(String[] args){
+		Client c = new Client();
+		try{
+			c.clientSetup("localHost",2020);
+			c.connect();
+		}catch(Exception e){
+
+		}
+	}
 
 	public Client(){
 
@@ -60,18 +69,15 @@ public class Client{
 			while(true){
 				try{
 					while(server){
-						line = Gui.toServer;
-						Gui.toServer = null;
-						if(line != null){
-							numMatcher = numPattern.matcher(line);
-							wordMatcher = wordPattern.matcher(line);
-							if(numMatcher.find()||wordMatcher.find()){
-								dataOut.writeUTF(line);
-								server = dataIn.readBoolean();
-							}
-							else{
-								Gui.fromServer = "Invalid number";
-							}
+						line = scanner.nextLine();
+						numMatcher = numPattern.matcher(line);
+						wordMatcher = wordPattern.matcher(line);
+						if(numMatcher.find()||wordMatcher.find()){
+							dataOut.writeUTF(line);
+							server = dataIn.readBoolean();
+						}
+						else{
+							System.out.println("Invalid number");
 						}
 					}
 				}catch(Exception e){
@@ -89,7 +95,7 @@ public class Client{
 		public void run(){
 			while(true){
 				try{
-					Gui.fromServer = dataIn.readUTF();
+					System.out.println(dataIn.readUTF());
 				}catch(Exception e){
 					break;
 				}
