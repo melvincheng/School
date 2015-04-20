@@ -52,7 +52,7 @@ public class Client{
 		DataOutputStream dataOut;
 		DataInputStream dataIn;
 		String numMatch = "[\\d]*";
-		String wordMatch = "[\\w]*";
+		String wordMatch = "[a-zA-Z]*";
 
 		public Send(DataOutputStream dataOut, DataInputStream dataIn){
 			this.dataOut = dataOut;
@@ -74,12 +74,9 @@ public class Client{
 						wordMatcher = wordPattern.matcher(line);
 						if(numMatcher.find()||wordMatcher.find()){
 							dataOut.writeUTF(line);
-							server = dataIn.readBoolean();
-						}
-						else{
-							System.out.println("Invalid number");
 						}
 					}
+					server = dataIn.readBoolean();
 				}catch(Exception e){
 					break;
 				}
@@ -95,8 +92,12 @@ public class Client{
 		public void run(){
 			while(true){
 				try{
-					System.out.println(dataIn.readUTF());
+					synchronized(System.out){
+						String data = dataIn.readUTF();
+						System.out.println(data);
+					}
 				}catch(Exception e){
+					System.out.println(e);
 					break;
 				}
 			}

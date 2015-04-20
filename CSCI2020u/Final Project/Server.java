@@ -46,23 +46,32 @@ public class Server{
 			String output;
 			while(true){
 				try{
-					if(helper.outputChoice()){
-						dataOut.writeUTF(helper.phoneResult);
-						synchronized(System.out){
-							System.out.println(userNum + " << " + helper.phoneResult);
-						}
-					}else if(!helper.outputChoice()){
-						dataOut.writeInt(helper.wordResult.size());
-						for(String word:helper.wordResult){
+					System.out.print("");
+					if(helper.choice!=null){
+						if(helper.choice){
+							dataOut.writeUTF(helper.phoneResult);
 							synchronized(System.out){
-								dataOut.writeUTF(word);
-								System.out.println(userNum + " << " + word);
+								System.out.println(userNum + " << " + helper.phoneResult);
 							}
+						}else if(!helper.choice){
+							if(!helper.wordResult.isEmpty()){
+								for(String word:helper.wordResult){
+									synchronized(System.out){
+										dataOut.writeUTF(word);
+										System.out.println(userNum + " << " + word);
+									}
+								}
+							}else{
+								synchronized(System.out){
+									dataOut.writeUTF("No match");
+									System.out.println(userNum + " << " + "No match");
+								}
+							}
+						}else{
+							System.out.println("Operation failed");
 						}
-					}else{
-						System.out.println("Operation failed");
+						helper.choice = null;
 					}
-					dataOut.writeBoolean(true);
 				}catch(Exception e){
 					break;
 				}
@@ -86,9 +95,8 @@ public class Server{
 			while(true){
 				try{
 					clientInput = dataIn.readUTF();
-					dataOut.writeBoolean(false);
 					synchronized(System.out){
-						System.out.println(userNum + ">>" + clientInput);
+						System.out.println(userNum + " >> " + clientInput);
 					}
 					synchronized(helper){
 						helper.input(clientInput);
