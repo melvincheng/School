@@ -17,22 +17,16 @@ func main(){
 	//argument 3 is number of baskets, 
 	//if user enters value under 1, entire data is used
 
-	if(len(usrin) > 4){
+	if(len(usrin) > 3){
 		threshold, err := strconv.Atoi(usrin[1])
 		basket, err2 := strconv.Atoi(usrin[3])
-		buckets, err3 := strconv.Atoi(usrin[4])
-		if(buckets <= 0){
-			log.Fatal("Cannot have negative amount of buckets")
-		}
-		if err == nil && err2 == nil && err3 == nil{
-			pcy(threshold, usrin[2], basket, buckets)
+		if err == nil && err2 == nil{
+			pcy(threshold, usrin[2], basket)
 			os.Exit(0)
 		}else if err != nil{
 			log.Fatal(err)
 		}else if err2 != nil{
 			log.Fatal(err2)
-		}else if err3 != nil{
-			log.Fatal(err3)
 		}
 	}else{
 		log.Fatal("Not enough arguments")
@@ -40,7 +34,7 @@ func main(){
 }
 
 
-func pcy(threshold int, file string, basket int, buckets int){
+func pcy(threshold int, file string, basket int){
 	var singleCount int
 	var hashCount int
 	var tot int
@@ -73,7 +67,7 @@ func pcy(threshold int, file string, basket int, buckets int){
 					if convErrOne != nil{
 						log.Panic(convErrTwo)
 					}							
-					hash = (intOne ^ intTwo)%buckets
+					hash = (intOne ^ intTwo)%2500
 					hashCount = hashmap[hash]
 					hashCount++
 					hashmap[hash] = hashCount
@@ -102,8 +96,7 @@ func pcy(threshold int, file string, basket int, buckets int){
 	// var bitmap map[byte]int
 	// bitmap = make(map[byte]int)
 
-	bitmap := make([]byte,buckets/8)
-
+	bitmap := make([]byte,2500/8)
 
 	fmt.Println("Total:",tot)
 	fmt.Println("Threshold:",threshold)
@@ -143,7 +136,7 @@ func pcy(threshold int, file string, basket int, buckets int){
 							if convErrOne != nil{
 								log.Panic(convErrTwo)
 							}
-							finalHash = (intOne ^ intTwo)%1000
+							finalHash = (intOne ^ intTwo)%2500
 							if(bitmap[byte(finalHash)/8] & (1<<(byte(finalHash)%8))>0){
 								//concatenate string to create key for pair
 								key = newString[i]+ " "+newString[j]
