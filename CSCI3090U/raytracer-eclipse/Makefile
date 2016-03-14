@@ -7,7 +7,7 @@
 ### MACROS
 
 # GNU (everywhere)
-CPP = g++ -g -Wall
+CPP = clang -g -Wall
 
 # GNU (faster)
 #CPP = g++ -O5 -Wall -fomit-frame-pointer -ffast-math 
